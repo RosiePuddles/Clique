@@ -12,6 +12,7 @@
 \usetikzlibrary{arrows.meta}
 \usepackage{listings}
 
+
 \SetKwComment{Comment}{/* }{ */}
 
 \lstdefinestyle{main}{
@@ -128,6 +129,87 @@ This paper has presented a polynomial time algorithm for finding all cliques for
 
 \appendix
 \section{Python implementation}
+\label{apdx:a}
 Here a graph is represented as a dictionary with each key value pair being a node, the key being the node index, and the value being the nodes connected to the current node.
-\lstinputlisting[language=Python,caption={Neighbourhood search algorithm for finding the maximal clique in a graph in $O(n^4)$ time. Written in Python 3.x}]{main.py}
+\lstinputlisting[language=Python,caption={Neighbourhood search algorithm for finding the maximal clique in a graph in $O(n^4)$ time. Written in Python 3.x},label={lst:py}]{main.py}
+
+\section{Results}
+This appendix contains the results from testing the Python implementation of the algorithm given in \cref{apdx:a}. Each graph was run 5 times and the minimum, maximum, and mean times were recorded. \Cref{tab:test-graphs} gives the complete list of graph types tested and their clique number. For each graph $n,m\in[5,100]$. This does not list the given clique number by the algorithm. For each graph the algorithm gave the correct clique number.
+
+\begin{table}[h]
+	\centering
+	\begin{tabular}{c|c}
+		Graph $G$ & Clique number $\omega(G)$\\\hline
+		$K_n$ & $n$\\
+		$K_{n,m}$ & 2\\
+		$C_n$ & 2\\
+		$L_n$ & 2\\
+	\end{tabular}
+	\caption{Graph types tested and their respective clique number}
+	\label{tab:test-graphs}
+\end{table}
+
+\begin{figure}[h]
+     \centering
+     \begin{tikzpicture}
+     	\begin{axis}[
+	     	xmin=0,ymin=0,
+	     	xlabel=$n$,ylabel={Time(s)},
+	     	legend pos=north west,
+	     	width=0.9\textwidth,
+	     	height=0.5\textwidth
+     	]
+			\addplot[mark=none,color=green] table [x=x, y=y, col sep=comma] {res/complete_min.csv};
+			\addlegendentry{Minimum};
+			\addplot[mark=none,color=blue] table [x=x, y=y, col sep=comma] {res/complete_mean.csv};
+			\addlegendentry{Mean};
+			\addplot[mark=none,color=red] table [x=x, y=y, col sep=comma] {res/complete_max.csv};
+			\addlegendentry{Maximum};
+		\end{axis}
+     \end{tikzpicture}
+     \caption{Time for complete graphs $K_n$}
+\end{figure}
+
+\begin{figure}[h]
+     \centering
+     \begin{tikzpicture}
+     	\begin{axis}[
+	     	xmin=0,ymin=0,
+	     	xlabel=$n$,ylabel={Time(s)},
+	     	legend pos=north west,
+	     	width=0.9\textwidth,
+	     	height=0.5\textwidth
+     	]
+			\addplot[mark=none,color=green] table [x=x, y=y, col sep=comma] {res/cycle_min.csv};
+			\addlegendentry{Minimum};
+			\addplot[mark=none,color=blue] table [x=x, y=y, col sep=comma] {res/cycle_mean.csv};
+			\addlegendentry{Mean};
+			\addplot[mark=none,color=red] table [x=x, y=y, col sep=comma] {res/cycle_max.csv};
+			\addlegendentry{Maximum};
+		\end{axis}
+     \end{tikzpicture}
+     \caption{Time for cycle graphs $C_n$}
+\end{figure}
+
+\begin{figure}[h]
+     \centering
+     \begin{tikzpicture}
+     	\begin{axis}[
+	     	xmin=0,ymin=0,
+	     	xlabel=$n$,ylabel={Time(s)},
+	     	legend pos=north west,
+	     	width=0.9\textwidth,
+	     	height=0.5\textwidth
+     	]
+			\addplot[mark=none,color=green] table [x=x, y=y, col sep=comma] {res/linear_min.csv};
+			\addlegendentry{Minimum};
+			\addplot[mark=none,color=blue] table [x=x, y=y, col sep=comma] {res/linear_mean.csv};
+			\addlegendentry{Mean};
+			\addplot[mark=none,color=red] table [x=x, y=y, col sep=comma] {res/linear_max.csv};
+			\addlegendentry{Maximum};
+		\end{axis}
+     \end{tikzpicture}
+     \caption{Time for linear graphs $L_n$}
+\end{figure}
+
 \end{document}
