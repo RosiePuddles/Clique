@@ -9,7 +9,8 @@ def NeighbourhoodGroup(graph: {int: {int}}) -> int:
 				t = 0
 				while len(I) != 0 and t < 10:
 					n3 = list(I)[0]
-					k = max(k, len(I.intersection(graph[n3])) + 3)
+					t = max(t, len(I.intersection(graph[n3])) + 1)
 					I -= graph[n3].union({n3})
-					t += 1
+				k = max(k, t + 1)
 	return k
+

@@ -58,11 +58,13 @@ $k\gets 0$\\
 		\If{$|N(n_1)|\geq k$}{
 			\ForEach{$n_2\in N(n_i)$}{
 				$I\gets N(n_1)\cap N(n_2)$\\
+				$t\gets 0$\\
 				\While{$I\neq\emptyset$}{
 					select $n_3$ from $I$\\
-					$k\gets\max\{k,|I\cap N(n_3)|+2\}$\\
+					$t\gets\max\{t,|I\cap N(n_3)| + 1\}$\\
 					$I\gets I\setminus N(n_3)$
 				}
+				$k\gets\max\{k,t+2\}$\\
 			}
 		}
 	}
