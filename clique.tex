@@ -61,10 +61,10 @@ $k\gets 0$\\
 				$t\gets 0$\\
 				\While{$I\neq\emptyset$}{
 					select $n_3$ from $I$\\
-					$t\gets\max\{t,|I\cap N(n_3)| + 1\}$\\
+					$t\gets\max\{t,|I\cap N(n_3)| + 1\}$\Comment*{Add 1 to account for $n_3$}
 					$I\gets I\setminus N(n_3)$
 				}
-				$k\gets\max\{k,t+2\}$\\
+				$k\gets\max\{k,t+2\}$\Comment*{Add 2 to account for $n_1$ and $n_2$}
 			}
 		}
 	}
