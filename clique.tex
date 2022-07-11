@@ -43,27 +43,28 @@ In this paper I will present the neighbourhood group algorithm for finding an ex
 }
 
 \section{The problem}
-The problem is henceforth defied as follows; for any arbitrary graph with $n$ nodes, check for the existence of a clique of size $k$.\\
+The problem is henceforth defined as follows; for any arbitrary graph with $n$ nodes, check for the existence of a clique of size $k$.\\
 
 $k$ will henceforth be used solely for the clique size. $n$ refers to the number of nodes in the graph only when referred to in matters of time complexity
 
 \section{Algorithm}
 
-Please note here that I define $N(n)$ as the set of nodes adjacent to $n$.\\
+Please note here that I define $A(n)$ as the set of nodes adjacent to $n$. I also assume that no node is connected to itself. There exist trivial algorithms to filter out edges from a node to itself that run in faster time than the given algorithm.\\
 
-I now present the Neighbour Search algorithm with notation \texttt{NeighbourSearch}$(Q, I, t)$ with $Q$ being a set of nodes making up a clique, $I$ being the set of nodes that may be included in $Q$ maintaining it being a clique, and $t$ being $k-|Q|$.
+I now present the Neighbourhood Search algorithm with notation \texttt{NeighbourSearch}$(Q, I, t)$ with $Q$ being a set of nodes making up a clique, $I$ being the set of nodes that may be included in $Q$ maintaining it being a clique, and $t$ being $k-|Q|$.
 
 The algorithm works by progressing through cliques, making them larger until $t=0$ at which point a clique of size $k$ has been found, or until the clique becomes maximal and $I=\emptyset$ at which point (assuming $t>0$ otherwise the first condition applies) the algorithm will look for different cliques.
 
-To calculate cliques, the algorithm starts with a node $n_1$ and gets $N(n_1)$. For all the cliques containing $n_1$, the nodes in any of the cliques must be adjacent to $n_1$ and thus in $N(n_1)$. We then go through each node $n_2\in N(n_1)$. For $n_1$ and $n_2$ to be in a clique, any other nodes in the same clique must be in both $N(n_1)$ and $N(n_2)$ or $N(n_1)\cap N(n_2)$. This repeats, taking a node $n$ from the set of available nodes $I$ and updating the available set to $I\gets I\cap N(n)$ until one of the conditions mentioned above is reached.
+To calculate cliques, the algorithm starts with a node $n_1$ and gets $A(n_1)$. For all the cliques containing $n_1$, the nodes in any of the cliques must be adjacent to $n_1$ and thus in $A(n_1)$. We then go through each node $n_2\in A(n_1)$. For $n_1$ and $n_2$ to be in a clique, any other nodes in the same clique must be in both $A(n_1)$ and $A(n_2)$ or $A(n_1)\cap A(n_2)$. This repeats, taking a node $n$ from the set of available nodes $I$ and updating the available set to $I\gets I\cap A(n)$ until one of the conditions mentioned above is reached.
 
 \begin{algorithm}
 \caption{Neighbourhood Search Algorithm}\label{alg:main}
 \SetKwFunction{FMain}{NeighbourhoodSearch}
 \SetKwProg{Fn}{Function}{: bool}{}
 \Fn{\FMain{$Q$, $I$, $t$}}{
+	\If{$t=1$ and $I\neq\emptyset$}{\Return{true}}
 	\ForEach{$n\in I$}{
-		\If{\FMain{$Q\cup\{n\},I\cap N(n),t-1$}}{
+		\If{\FMain{$Q\cup\{n\},I\cap A(n),t-1$}}{
 			\Return{true}
 		}
 	}
@@ -77,123 +78,124 @@ To calculate cliques, the algorithm starts with a node $n_1$ and gets $N(n_1)$. 
 \KwResult{boolean representing the existence of a clique of size $k$ in $G$}
 \SetKwFunction{FMain}{NeighbourhoodSearch}
 \ForEach{$n\in V$}{
-	\If{\FMain{$Q\cup\{n\},I\cap N(n),t-1$}}{\Return{true}}
+	\If{\FMain{$\{n\},A(n),k-1$}}{\Return{true}}
 }
 \Return{false}
 \end{algorithm}
 
 \subsection{Time complexity}
 
-\centering{\LARGE{\textbf{IN PROGRESS}}}
+I assume here that set operations take linear time. This can be implemented with two fixed length arrays trivially. I will also be ignoring times for function calls.\\
 
-Firstly, the main loop (lines 2-17) runs $n$ times. We then reach a conditional which we will assume the else condition (lines 5-16) since it has the larger time complexity and will give the worst case complexity for the algorithm. We then reach a second conditional (lines 6-15). This is here for optimisation. We will assume that this runs for each node for the worst case. The loop inside this condition (lines 7-14) runs at most $n-1$ times when the current node is connected to all other nodes. The while loop (lines 8-13) will run up to $n-2$ times in the case that $n_1$ and $n_2$ are connected to all the other nodes, each of which are connected to only $n_1$ and $n_2$. The section within the while loop (lines 10-12) will run in linear time since al operations can be performed within linear time by use of fixed length arrays for set operations.
+We first consider \cref{alg:body}. This runs at most $n$ times. We must now consider \cref{alg:main}. Firstly the conditional on lines 2-4 takes constant time. The loop on lines 5-9 will run at most $n-k+t$ times since $|Q|=k-t$ giving $n-k+t$ not in $Q$ which could be in $I$. The body of this loop takes linear time for the set operations and constant time for the comparison. This means that, for a time function $f$, we have $n(n-k+t)\cdot f$ time for each function call. We have a lower bound on the recursion depth however of $k$ meaning that in total we have
+\begin{equation}
+	\begin{aligned}
+		f &= n\prod_{t=1}^kn(n-k+t)\\
+		&=n\prod_{t=1}^kn^2-kn+tn\\
+		&=O(n^{1+2k})
+	\end{aligned}
+\end{equation}
 
-We also precompute $N(n)\forall n\in V$ taking at most $O(n^3)$\footnote{$n$ repetitions of going through each edge for which there are at most $\frac{n(n-1)}{2}$ giving $O(n^3)$}.
+\subsection{Optimisations}
+\label{subsec:optimisations}
 
-In total this gives $O(n^3)+O(n^4)=O(n^4)$ for the algorithm.
+There are probably a few optimisations we can make upon \cref{alg:main} and \cref{alg:body}. One of these is that if $|A(n)|<k$ then we can ignore $n$. We do this since even if every node in $A(n)$ were adjacent to each other, the clique would be smaller than $k$ and it would be use the algorithm to prove so.
 
-\subsection{Lower bound}
-This algorithm has a lower bound of $\Omega(1)$ for a graph with one node. This is not very useful, so we instead consider the best case performance for a graph with $n$ nodes.\\
-
-In this graph, we would find the largest clique in the first iteration which would contain all the nodes in the graph giving the largest possible $k$ value of $n$. This means that the first iteration would take linear time by the set operations. Any following iteration would take constant time since very little is actually run giving a total of $\Omega(n)$ for the lower bound. This is excluding the neighbourhood pre-computation.
+It may also be useful to calculate $\Delta(G)$ to make sure that a clique of size $k$ can theoretically exist in the given graph since $\omega(G)\leq\Delta(G)$. This optimisation would not change the time complexity of the algorithm, but would alter the lower bound to $\Omega(n)$ for $k>\Delta(G)$ giving time to calculate $\Delta(G)$.
 
 \section{Correctness}
 
-Let $n_1$ be a node in $V$. If we consider the possible cliques $n$ is contained within, by definition all of these cliques must contain nodes within $N(n_1)$ otherwise $n$ would not be adjacent to all nodes in the subgraph, and thus the subgraph would not be a clique. We now place a condition on the following section. If $|N(n_1)|$ is less than the size of the current largest clique, there is no possible way in which this node will give a larger clique and we can ignore it. If this is not the case we continue. By then taking $n_2\in N(n_1)$, any clique that $n_2$ is contained within must contain nodes within $N(n_2)$ for the same reason. Therefore, any clique that contains both $n$ and $n_2$ can only contain nodes within $N(n_1)$ and $N(n_1)$ or $N(n_1)\cap N(n_2)$ which we will call $I$.
+Let $n_1$ be a node in $V$. If we consider the possible cliques $n$ is contained within, by definition all of these cliques must contain nodes within $A(n_1)$ otherwise $n$ would not be adjacent to all nodes in the subgraph, and thus the subgraph would not be a clique. By then taking $n_2\in A(n_1)$, any clique that $n_2$ is contained within must contain nodes within $A(n_2)$ for the same reasons. Therefore, any clique that contains both $n$ and $n_2$ can only contain nodes within $A(n_1)$ and $A(n_1)$ or $A(n_1)\cap A(n_2)$.
 
-It is not guaranteed that $I$, along with $n_1$ and $n_2$, will be a clique however since nothing we have done thus far would allow us to assume this without loss of generality. We can assume though that any two unique nodes in $I$ there is a path between them with a length of 2 through either $n_1$ or $n_2$. If we then go through each $n_3\in I$ and take $\{n_1,n_2\}\cup (I\cap N(n_3))$ we end up with a clique since each node in $I$ is at adjacent to both $n_1$ and $n_2$, and each node in $N(n_3)$ is adjacent to $n_3$ which means that each node in $I\cap N(n_3)$ is adjacent to $n_1$, $n_2$, $n_3$. This is an improvement since in $I$ there were nodes that were 2 away, but by constraining $I$ by the neighbourhood of a node in $I$ we remove any nodes in $I$ that are not adjacent to the currently considered node in $I$ giving a clique.
-
-Unlike when working through $N(n_1)$, we can filter out some of the nodes in $I$ as we go to increase speed since we're not considering the entirety of $N(n_3)$, but only finding connected sections in $I$.
-
-This does not find all the cliques in the graph. It does however find the largest cliques given two adjacent nodes which allows us to then give $\omega(G)$ which would them allow us to state the existence of a $k$-clique in $G$.
+We now have a clique of size 2. If we continue this, selecting new nodes from the intersections of the neighbourhoods of the nodes already in the clique, we ensure that any node added to the clique is adjacent to the nodes already in the clique.
 
 \section{Conclusion}
 
-This paper has presented a polynomial time algorithm for finding all cliques for an arbitrary undirected graph. There is room for improvement in the given algorithm. For example one might improve the number of iterations by not computing identical cliques; for example in $C_3$ each iteration, two nodes in $N(n)$ are considered, each functionally equivalent, and then the process repeats three times for equally functionally equivalent nodes. These optimisations, other than those given, are left for future research.
+This paper has presented an exact algorithm for solving the clique problem in polynomial time for an arbitrary undirected graph. As noted in \cref{subsec:optimisations}, there is room for improvement. This paper is a proof of concept for the existence of a polynomial time algorithm for an NP-complete problem to show that P=NP. It is left to future research to optimise this algorithm.
 
-\appendix
-\section{Python implementation}
-\label{apdx:a}
-Here a graph is represented as a dictionary with each key value pair being a node, the key being the node index, and the value being the nodes connected to the current node.
-\lstinputlisting[language=Python,caption={Neighbourhood search algorithm for finding the maximal clique in a graph in $O(n^4)$ time. Written in Python 3.x},label={lst:py}]{main.py}
-
-\section{Results}
-This appendix contains the results from testing the Python implementation of the algorithm given in \cref{apdx:a}. Each graph was run 5 times and the minimum, maximum, and mean times were recorded. \Cref{tab:test-graphs} gives the complete list of graph types tested and their clique number. For each graph $n,m\in[5,100]$. This does not list the given clique number by the algorithm. For each graph the algorithm gave the correct clique number.
-
-\begin{table}[h]
-	\centering
-	\begin{tabular}{c|c}
-		Graph $G$ & Clique number $\omega(G)$\\\hline
-		$K_n$ & $n$\\
-		$K_{n,m}$ & 2\\
-		$C_n$ & 2\\
-		$L_n$ & 2\\
-	\end{tabular}
-	\caption{Graph types tested and their respective clique number}
-	\label{tab:test-graphs}
-\end{table}
-
-\begin{figure}[h]
-     \centering
-     \begin{tikzpicture}
-     	\begin{axis}[
-	     	xmin=0,ymin=0,
-	     	xlabel=$n$,ylabel={Time(s)},
-	     	legend pos=north west,
-	     	width=0.9\textwidth,
-	     	height=0.5\textwidth
-     	]
-			\addplot[mark=none,color=green] table [x=x, y=y, col sep=comma] {res/complete_min.csv};
-			\addlegendentry{Minimum};
-			\addplot[mark=none,color=blue] table [x=x, y=y, col sep=comma] {res/complete_mean.csv};
-			\addlegendentry{Mean};
-			\addplot[mark=none,color=red] table [x=x, y=y, col sep=comma] {res/complete_max.csv};
-			\addlegendentry{Maximum};
-		\end{axis}
-     \end{tikzpicture}
-     \caption{Time for complete graphs $K_n$}
-\end{figure}
-
-\begin{figure}[h]
-     \centering
-     \begin{tikzpicture}
-     	\begin{axis}[
-	     	xmin=0,ymin=0,
-	     	xlabel=$n$,ylabel={Time(s)},
-	     	legend pos=north west,
-	     	width=0.9\textwidth,
-	     	height=0.5\textwidth
-     	]
-			\addplot[mark=none,color=green] table [x=x, y=y, col sep=comma] {res/cycle_min.csv};
-			\addlegendentry{Minimum};
-			\addplot[mark=none,color=blue] table [x=x, y=y, col sep=comma] {res/cycle_mean.csv};
-			\addlegendentry{Mean};
-			\addplot[mark=none,color=red] table [x=x, y=y, col sep=comma] {res/cycle_max.csv};
-			\addlegendentry{Maximum};
-		\end{axis}
-     \end{tikzpicture}
-     \caption{Time for cycle graphs $C_n$}
-\end{figure}
-
-\begin{figure}[h]
-     \centering
-     \begin{tikzpicture}
-     	\begin{axis}[
-	     	xmin=0,ymin=0,
-	     	xlabel=$n$,ylabel={Time(s)},
-	     	legend pos=north west,
-	     	width=0.9\textwidth,
-	     	height=0.5\textwidth
-     	]
-			\addplot[mark=none,color=green] table [x=x, y=y, col sep=comma] {res/linear_min.csv};
-			\addlegendentry{Minimum};
-			\addplot[mark=none,color=blue] table [x=x, y=y, col sep=comma] {res/linear_mean.csv};
-			\addlegendentry{Mean};
-			\addplot[mark=none,color=red] table [x=x, y=y, col sep=comma] {res/linear_max.csv};
-			\addlegendentry{Maximum};
-		\end{axis}
-     \end{tikzpicture}
-     \caption{Time for linear graphs $L_n$}
-\end{figure}
+%\appendix
+%\section{Python implementation}
+%\label{apdx:a}
+%Here a graph is represented as a dictionary with each key value pair being a node, the key being the node index, and the value being the nodes connected to the current node.
+%\lstinputlisting[language=Python,caption={Neighbourhood search algorithm for finding the maximal clique in a graph in $O(n^4)$ time. Written in Python 3.x},label={lst:py}]{main.py}
+%
+%\section{Results}
+%This appendix contains the results from testing the Python implementation of the algorithm given in \cref{apdx:a}. Each graph was run 5 times and the minimum, maximum, and mean times were recorded. \Cref{tab:test-graphs} gives the complete list of graph types tested and their clique number. For each graph $n,m\in[5,100]$. This does not list the given clique number by the algorithm. For each graph the algorithm gave the correct clique number.
+%
+%\begin{table}[h]
+%	\centering
+%	\begin{tabular}{c|c}
+%		Graph $G$ & Clique number $\omega(G)$\\\hline
+%		$K_n$ & $n$\\
+%		$K_{n,m}$ & 2\\
+%		$C_n$ & 2\\
+%		$L_n$ & 2\\
+%	\end{tabular}
+%	\caption{Graph types tested and their respective clique number}
+%	\label{tab:test-graphs}
+%\end{table}
+%
+%\begin{figure}[h]
+%     \centering
+%     \begin{tikzpicture}
+%     	\begin{axis}[
+%	     	xmin=0,ymin=0,
+%	     	xlabel=$n$,ylabel={Time(s)},
+%	     	legend pos=north west,
+%	     	width=0.9\textwidth,
+%	     	height=0.5\textwidth
+%     	]
+%			\addplot[mark=none,color=green] table [x=x, y=y, col sep=comma] {res/complete_min.csv};
+%			\addlegendentry{Minimum};
+%			\addplot[mark=none,color=blue] table [x=x, y=y, col sep=comma] {res/complete_mean.csv};
+%			\addlegendentry{Mean};
+%			\addplot[mark=none,color=red] table [x=x, y=y, col sep=comma] {res/complete_max.csv};
+%			\addlegendentry{Maximum};
+%		\end{axis}
+%     \end{tikzpicture}
+%     \caption{Time for complete graphs $K_n$}
+%\end{figure}
+%
+%\begin{figure}[h]
+%     \centering
+%     \begin{tikzpicture}
+%     	\begin{axis}[
+%	     	xmin=0,ymin=0,
+%	     	xlabel=$n$,ylabel={Time(s)},
+%	     	legend pos=north west,
+%	     	width=0.9\textwidth,
+%	     	height=0.5\textwidth
+%     	]
+%			\addplot[mark=none,color=green] table [x=x, y=y, col sep=comma] {res/cycle_min.csv};
+%			\addlegendentry{Minimum};
+%			\addplot[mark=none,color=blue] table [x=x, y=y, col sep=comma] {res/cycle_mean.csv};
+%			\addlegendentry{Mean};
+%			\addplot[mark=none,color=red] table [x=x, y=y, col sep=comma] {res/cycle_max.csv};
+%			\addlegendentry{Maximum};
+%		\end{axis}
+%     \end{tikzpicture}
+%     \caption{Time for cycle graphs $C_n$}
+%\end{figure}
+%
+%\begin{figure}[h]
+%     \centering
+%     \begin{tikzpicture}
+%     	\begin{axis}[
+%	     	xmin=0,ymin=0,
+%	     	xlabel=$n$,ylabel={Time(s)},
+%	     	legend pos=north west,
+%	     	width=0.9\textwidth,
+%	     	height=0.5\textwidth
+%     	]
+%			\addplot[mark=none,color=green] table [x=x, y=y, col sep=comma] {res/linear_min.csv};
+%			\addlegendentry{Minimum};
+%			\addplot[mark=none,color=blue] table [x=x, y=y, col sep=comma] {res/linear_mean.csv};
+%			\addlegendentry{Mean};
+%			\addplot[mark=none,color=red] table [x=x, y=y, col sep=comma] {res/linear_max.csv};
+%			\addlegendentry{Maximum};
+%		\end{axis}
+%     \end{tikzpicture}
+%     \caption{Time for linear graphs $L_n$}
+%\end{figure}
 
 \end{document}
