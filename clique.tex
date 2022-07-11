@@ -77,6 +77,7 @@ To calculate cliques, the algorithm starts with a node $n_1$ and gets $A(n_1)$. 
 \KwData{$G=(V,E), k$}
 \KwResult{boolean representing the existence of a clique of size $k$ in $G$}
 \SetKwFunction{FMain}{NeighbourhoodSearch}
+\If{$k=1$ and $|V| \neq 0$}{\Return{true}}
 \ForEach{$n\in V$}{
 	\If{\FMain{$\{n\},A(n),k-1$}}{\Return{true}}
 }
@@ -87,12 +88,10 @@ To calculate cliques, the algorithm starts with a node $n_1$ and gets $A(n_1)$. 
 
 I assume here that set operations take linear time. This can be implemented with two fixed length arrays trivially. I will also be ignoring times for function calls.\\
 
-We first consider \cref{alg:body}. This runs at most $n$ times. We must now consider \cref{alg:main}. Firstly the conditional on lines 2-4 takes constant time. The loop on lines 5-9 will run at most $n-k+t$ times since $|Q|=k-t$ giving $n-k+t$ not in $Q$ which could be in $I$. The body of this loop takes linear time for the set operations and constant time for the comparison. This means that, for a time function $f$, we have $n(n-k+t)\cdot f$ time for each function call. We have a lower bound on the recursion depth however of $k$ meaning that in total we have
+We first consider \cref{alg:body}. This runs at most $n$ times. We must now consider \cref{alg:main}. Firstly the conditional on lines 2-4 takes constant time. The loop on lines 5-9 will run at most $n-k+t$ times since $|Q|=k-t$ giving $n-k+t$ not in $Q$ which could be in $I$. The body of this loop takes linear time for the set operations and constant time for the comparison. Therefore, for a given function call it will take $f(t)=n(n-k+t)f(t-1)$ time. However, we have a lower bound on the recursion depth however of $k$ meaning that in total we have
 \begin{equation}
 	\begin{aligned}
-		f &= n\prod_{t=1}^kn(n-k+t)\\
-		&=n\prod_{t=1}^kn^2-kn+tn\\
-		&=O(n^{1+2k})
+		n\prod_{t=1}^kn(n-k+t)&=O(n^{1+2k})
 	\end{aligned}
 \end{equation}
 
@@ -113,12 +112,12 @@ We now have a clique of size 2. If we continue this, selecting new nodes from th
 
 This paper has presented an exact algorithm for solving the clique problem in polynomial time for an arbitrary undirected graph. As noted in \cref{subsec:optimisations}, there is room for improvement. This paper is a proof of concept for the existence of a polynomial time algorithm for an NP-complete problem to show that P=NP. It is left to future research to optimise this algorithm.
 
-%\appendix
-%\section{Python implementation}
-%\label{apdx:a}
-%Here a graph is represented as a dictionary with each key value pair being a node, the key being the node index, and the value being the nodes connected to the current node.
-%\lstinputlisting[language=Python,caption={Neighbourhood search algorithm for finding the maximal clique in a graph in $O(n^4)$ time. Written in Python 3.x},label={lst:py}]{main.py}
-%
+\appendix
+\section{Python implementation}
+\label{apdx:a}
+Here a graph is represented as a dictionary with each key value pair being a node, the key being the node index, and the value being the nodes connected to the current node.
+\lstinputlisting[language=Python,caption={Neighbourhood search algorithm for finding the maximal clique in a graph in $O(n^4)$ time. Written in Python 3.x},label={lst:py}]{main.py}
+
 %\section{Results}
 %This appendix contains the results from testing the Python implementation of the algorithm given in \cref{apdx:a}. Each graph was run 5 times and the minimum, maximum, and mean times were recorded. \Cref{tab:test-graphs} gives the complete list of graph types tested and their clique number. For each graph $n,m\in[5,100]$. This does not list the given clique number by the algorithm. For each graph the algorithm gave the correct clique number.
 %

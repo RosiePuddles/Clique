@@ -1,16 +1,14 @@
-def NeighbourhoodGroup(graph: {int: {int}}) -> int:
-	k = 0
-	for n1 in graph:
-		if len(graph[n1]) == 0:
-			k = max(k, 1)
-		elif len(graph[n1]) >= k:
-			for n2 in graph[n1]:
-				I = graph[n1].intersection(graph[n2])
-				t = 0
-				while len(I) != 0:
-					n3 = list(I)[0]
-					t = max(t, len(I.intersection(graph[n3])) + 1)
-					I -= graph[n3].union({n3})
-				k = max(k, t + 1)
-	return k
-
+def NeighbourhoodGroup(graph: {int: {int}}, k: int) -> bool:
+	def inner(Q: {int}, I: {int}, t: int) -> bool:
+		if t == 1 and len(I) != 0:
+			return True
+		for n in I:
+			if inner(Q.union({n}), I.intersection(graph[n]), t - 1):
+				return True
+		return False
+	if k == 1 and len(graph) != 0:
+		return True
+	for n in graph:
+		if inner({n}, graph[n], k - 1):
+			return True
+	return False
