@@ -33,74 +33,58 @@
 \lstset{style=main}
 
 \author{Rosie Bartlett\\\texttt{lvff38@durham.ac.uk}}
-\title{Clique number in polynomial time}
+\title{Exact Solution to the Clique Problem in Polynomial Time}
 
 \begin{document}
 \maketitle
 
 \abstract{
-In this paper I will present the neighbourhood group algorithm for finding $\omega(G)$ in $O(n^4)$ time using node neighbourhoods and grouping.
+In this paper I will present the neighbourhood group algorithm for finding an exact solution to the clique problem in polynomial time dependant on the clique size.
 }
 
 \section{The problem}
-The problem is henceforth defied as follows; for any arbitrary graph with $n$ nodes, find the size of the largest clique, that is a subgraph for which any node is adjacent to any other node in that subgraph.
+The problem is henceforth defied as follows; for any arbitrary graph with $n$ nodes, check for the existence of a clique of size $k$.\\
+
+$k$ will henceforth be used solely for the clique size. $n$ refers to the number of nodes in the graph only when referred to in matters of time complexity
 
 \section{Algorithm}
-Please note here that the traditional $G=(V,E)$ has been replaced with a set for $V$. this is to simplify algorithm notation. I also define $N(n)\forall n\in V$ as the set of nodes adjacent to $n$ and not the induced subgraph.
+
+Please note here that I define $N(n)$ as the set of nodes adjacent to $n$.\\
+
+I now present the Neighbour Search algorithm with notation \texttt{NeighbourSearch}$(Q, I, t)$ with $Q$ being a set of nodes making up a clique, $I$ being the set of nodes that may be included in $Q$ maintaining it being a clique, and $t$ being $k-|Q|$.
+
+The algorithm works by progressing through cliques, making them larger until $t=0$ at which point a clique of size $k$ has been found, or until the clique becomes maximal and $I=\emptyset$ at which point (assuming $t>0$ otherwise the first condition applies) the algorithm will look for different cliques.
+
+To calculate cliques, the algorithm starts with a node $n_1$ and gets $N(n_1)$. For all the cliques containing $n_1$, the nodes in any of the cliques must be adjacent to $n_1$ and thus in $N(n_1)$. We then go through each node $n_2\in N(n_1)$. For $n_1$ and $n_2$ to be in a clique, any other nodes in the same clique must be in both $N(n_1)$ and $N(n_2)$ or $N(n_1)\cap N(n_2)$. This repeats, taking a node $n$ from the set of available nodes $I$ and updating the available set to $I\gets I\cap N(n)$ until one of the conditions mentioned above is reached.
+
 \begin{algorithm}
-\caption{Clique number calulation}\label{alg:main}
-\KwData{$G=(V,E)$}
-\KwResult{$\omega(G)$}
-$k\gets 0$\\
-\ForEach{$n_1\in V$}{
-	\eIf{$N(n_1)=\emptyset$}{
-		$k\gets\max\{k,1\}$\\
-	}{
-		\If{$|N(n_1)|\geq k$}{
-			\ForEach{$n_2\in N(n_i)$}{
-				$I\gets N(n_1)\cap N(n_2)$\\
-				$t\gets 0$\\
-				\While{$I\neq\emptyset$}{
-					select $n_3$ from $I$\\
-					$t\gets\max\{t,|I\cap N(n_3)| + 1\}$\Comment*{Add 1 to account for $n_3$}
-					$I\gets I\setminus N(n_3)$
-				}
-				$k\gets\max\{k,t+2\}$\Comment*{Add 2 to account for $n_1$ and $n_2$}
-			}
+\caption{Neighbourhood Search Algorithm}\label{alg:main}
+\SetKwFunction{FMain}{NeighbourhoodSearch}
+\SetKwProg{Fn}{Function}{: bool}{}
+\Fn{\FMain{$Q$, $I$, $t$}}{
+	\ForEach{$n\in I$}{
+		\If{\FMain{$Q\cup\{n\},I\cap N(n),t-1$}}{
+			\Return{true}
 		}
 	}
+	\Return{false}
 }
-\Return{$k$}
 \end{algorithm}
 
-This algorithm can be considered to take all possible pairs of adjacent nodes and find their cliques. To find the cliques containing the two given nodes, we group the intersection of their neighbourhoods. If we consider \cref{fig:groups}, we have three maximal cliques made of $n_1$ and $n_2$ along with the groups $\{m_1,m_2,m_3\}$, $\{p_1,p_2\}$, and $\{p_3\}$. We can be sure that these are the only cliques that contain $n_1$ and $n_2$ otherwise there would be more nodes in $I$ represented as the row of nodes.
-
-\begin{figure}[h]
-	\centering
-	\begin{tikzpicture}[shorten >=1pt,->]
-		\tikzstyle{node}=[circle,minimum size=20pt,inner sep=2pt,draw=black]
-		\node[node] (n1) at (0,0) {$n_1$};
-		\node[node] (n2) at (0,2) {$n_2$};
-		\draw (n1) -- (n2) -- cycle;
-		\foreach \x in {1,...,3}{
-			\node[node] (p\x) at (\x,1){$p_\x$};
-			\draw (n1.east) -- (p\x.south) -- cycle;
-			\draw (n2.east) -- (p\x.north) -- cycle;
-			
-			\node[node] (m\x) at (-\x,1){$m_\x$};
-			\draw (n1.west) -- (m\x.south) -- cycle;
-			\draw (n2.west) -- (m\x.north) -- cycle;
-		};
-		\draw (p1) -- (p2) -- cycle;
-		\draw (m1) -- (m2) -- (m3) -- cycle;
-	\end{tikzpicture}
-	\caption{Conceptualisation of grouping $N(n_1)\cap N(n_2)$}
-	\label{fig:groups}
-\end{figure}
+\begin{algorithm}
+\caption{Algorithm entry point}\label{alg:body}
+\KwData{$G=(V,E), k$}
+\KwResult{boolean representing the existence of a clique of size $k$ in $G$}
+\SetKwFunction{FMain}{NeighbourhoodSearch}
+\ForEach{$n\in V$}{
+	\If{\FMain{$Q\cup\{n\},I\cap N(n),t-1$}}{\Return{true}}
+}
+\Return{false}
+\end{algorithm}
 
 \subsection{Time complexity}
 
-To analyse the time complexity of \cref{alg:main}, I will consider sections of the algorithm for a graph $G$ with $n$ nodes.\\
+\centering{\LARGE{\textbf{IN PROGRESS}}}
 
 Firstly, the main loop (lines 2-17) runs $n$ times. We then reach a conditional which we will assume the else condition (lines 5-16) since it has the larger time complexity and will give the worst case complexity for the algorithm. We then reach a second conditional (lines 6-15). This is here for optimisation. We will assume that this runs for each node for the worst case. The loop inside this condition (lines 7-14) runs at most $n-1$ times when the current node is connected to all other nodes. The while loop (lines 8-13) will run up to $n-2$ times in the case that $n_1$ and $n_2$ are connected to all the other nodes, each of which are connected to only $n_1$ and $n_2$. The section within the while loop (lines 10-12) will run in linear time since al operations can be performed within linear time by use of fixed length arrays for set operations.
 
