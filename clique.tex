@@ -88,10 +88,10 @@ To calculate cliques, the algorithm starts with a node $n_1$ and gets $A(n_1)$. 
 
 I assume here that set operations take linear time. This can be implemented with two fixed length arrays trivially. I will also be ignoring times for function calls.\\
 
-We first consider \cref{alg:body}. This runs at most $n$ times. We must now consider \cref{alg:main}. Firstly the conditional on lines 2-4 takes constant time. The loop on lines 5-9 will run at most $n-k+t$ times since $|Q|=k-t$ giving $n-k+t$ not in $Q$ which could be in $I$. The body of this loop takes linear time for the set operations and constant time for the comparison. Therefore, for a given function call it will take $f(t)=n(n-k+t)f(t-1)$ time. However, we have a lower bound on the recursion depth however of $k$ meaning that in total we have
+We first consider \cref{alg:body}. This runs at most $n$ times. We must now consider \cref{alg:main}. Firstly the conditional on lines 2-4 takes constant time. The loop on lines 5-9 will run at most $n-k+t$ times since $|Q|=k-t$ giving $n-k+t$ not in $Q$ which could be in $I$. The body of this loop takes linear time for the set operations and constant time for the comparison. Therefore, for a given function call it will take $f(t)=n(n-k+t)f(t-1)$ time. However, we have a lower bound on the recursion depth of $k-1$ since we only run the algorithm until $t=1$ not $t=0$. This means that in total we have
 \begin{equation}
 	\begin{aligned}
-		n\prod_{t=1}^kn(n-k+t)&=O(n^{1+2k})
+		n\prod_{t=1}^{k-1}n(n-k+t)&=O(n^{2k-1})
 	\end{aligned}
 \end{equation}
 
@@ -119,123 +119,6 @@ Here a graph is represented as a dictionary with each key value pair being a nod
 \lstinputlisting[language=Python,caption={Neighbourhood search algorithm for finding the maximal clique in a graph in $O(n^4)$ time. Written in Python 3.x},label={lst:py}]{main.py}
 \lstinputlisting[language=Python,caption={The more optimised version of the previous implementation},label={lst:pyo}]{optimised.py}
 
-\section{Results}
-This appendix contains the results from testing the Python implementation of the algorithm given in listing \ref{lst:pyo}. This only contains times. The algorithm gave the expected answer for all tested graph. The code for running these benchmarks along with the code for checking the algorithm gives the expected value are available in this \href{https://github.com/RosiePuddles/Clique}{repository} in the \texttt{benchmark.py} and \texttt{test.py} files respectively
-%
-%\begin{table}[h]
-%	\centering
-%	\begin{tabular}{c|c}
-%		Graph $G$ & Clique number $\omega(G)$\\\hline
-%		$K_n$ & $n$\\
-%		$K_{n,m}$ & 2\\
-%		$C_n$ & 2\\
-%		$L_n$ & 2\\
-%	\end{tabular}
-%	\caption{Graph types tested and their respective clique number}
-%	\label{tab:test-graphs}
-%\end{table}
-%
-\begin{figure}[h]
-     \centering
-     \begin{tikzpicture}
-     	\begin{axis}[
-	     	xmin=0,ymin=0,
-	     	xlabel=$k$,ylabel={Time(s)},
-	     	legend pos=north west,
-	     	width=0.9\textwidth,
-	     	height=0.5\textwidth
-     	]
-			\addplot[mark=none,color=green] table [x=x, y=min, col sep=comma] {res/complete500.csv};
-			\addlegendentry{Minimum};
-			\addplot[mark=none,color=blue] table [x=x, y=mean, col sep=comma] {res/complete500.csv};
-			\addlegendentry{Mean};
-			\addplot[mark=none,color=red] table [x=x, y=max, col sep=comma] {res/complete500.csv};
-			\addlegendentry{Maximum};
-		\end{axis}
-     \end{tikzpicture}
-     \caption{Times for \texttt{NeighbourhoodSearch}($K_{500},k$) using 25 repetitions}
-\end{figure}
-\begin{figure}[h]
-     \centering
-     \begin{tikzpicture}
-     	\begin{axis}[
-	     	xmin=0,ymin=0,
-	     	xlabel=$n$,ylabel={Time(s)},
-	     	legend pos=north west,
-	     	width=0.9\textwidth,
-	     	height=0.5\textwidth
-     	]
-			\addplot[mark=none,color=green] table [x=x, y=min, col sep=comma] {res/cycle.csv};
-			\addlegendentry{Minimum};
-			\addplot[mark=none,color=blue] table [x=x, y=mean, col sep=comma] {res/cycle.csv};
-			\addlegendentry{Mean};
-			\addplot[mark=none,color=red] table [x=x, y=max, col sep=comma] {res/cycle.csv};
-			\addlegendentry{Maximum};
-		\end{axis}
-     \end{tikzpicture}
-     \caption{Times for \texttt{NeighbourhoodSearch}($C_{n},2$) using 25 repetitions. Here I start at $C_3$}
-\end{figure}
-\begin{figure}[h]
-     \centering
-     \begin{tikzpicture}
-     	\begin{axis}[
-	     	xmin=0,ymin=0,
-	     	xlabel=$n$,ylabel={Time(s)},
-	     	legend pos=north west,
-	     	width=0.9\textwidth,
-	     	height=0.5\textwidth
-     	]
-			\addplot[mark=none,color=green] table [x=x, y=min, col sep=comma] {res/linear.csv};
-			\addlegendentry{Minimum};
-			\addplot[mark=none,color=blue] table [x=x, y=mean, col sep=comma] {res/linear.csv};
-			\addlegendentry{Mean};
-			\addplot[mark=none,color=red] table [x=x, y=max, col sep=comma] {res/linear.csv};
-			\addlegendentry{Maximum};
-		\end{axis}
-     \end{tikzpicture}
-     \caption{Times for \texttt{NeighbourhoodSearch}($L_{n},2$) using 25 repetitions. Here I start at $L_3$}
-\end{figure}
-%
-%\begin{figure}[h]
-%     \centering
-%     \begin{tikzpicture}
-%     	\begin{axis}[
-%	     	xmin=0,ymin=0,
-%	     	xlabel=$n$,ylabel={Time(s)},
-%	     	legend pos=north west,
-%	     	width=0.9\textwidth,
-%	     	height=0.5\textwidth
-%     	]
-%			\addplot[mark=none,color=green] table [x=x, y=y, col sep=comma] {res/cycle_min.csv};
-%			\addlegendentry{Minimum};
-%			\addplot[mark=none,color=blue] table [x=x, y=y, col sep=comma] {res/cycle_mean.csv};
-%			\addlegendentry{Mean};
-%			\addplot[mark=none,color=red] table [x=x, y=y, col sep=comma] {res/cycle_max.csv};
-%			\addlegendentry{Maximum};
-%		\end{axis}
-%     \end{tikzpicture}
-%     \caption{Time for cycle graphs $C_n$}
-%\end{figure}
-%
-%\begin{figure}[h]
-%     \centering
-%     \begin{tikzpicture}
-%     	\begin{axis}[
-%	     	xmin=0,ymin=0,
-%	     	xlabel=$n$,ylabel={Time(s)},
-%	     	legend pos=north west,
-%	     	width=0.9\textwidth,
-%	     	height=0.5\textwidth
-%     	]
-%			\addplot[mark=none,color=green] table [x=x, y=y, col sep=comma] {res/linear_min.csv};
-%			\addlegendentry{Minimum};
-%			\addplot[mark=none,color=blue] table [x=x, y=y, col sep=comma] {res/linear_mean.csv};
-%			\addlegendentry{Mean};
-%			\addplot[mark=none,color=red] table [x=x, y=y, col sep=comma] {res/linear_max.csv};
-%			\addlegendentry{Maximum};
-%		\end{axis}
-%     \end{tikzpicture}
-%     \caption{Time for linear graphs $L_n$}
-%\end{figure}
+\input{res}
 
 \end{document}

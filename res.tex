@@ -1,0 +1,112 @@
+\section{Results}
+This appendix contains the results from testing the Python implementation of the algorithm given in listing \ref{lst:pyo}. This only contains times. The algorithm gave the expected answer for all tested graph. The code for running these benchmarks along with the code for checking the algorithm and raw data in CSV format gives the expected value are available in this \href{https://github.com/RosiePuddles/Clique}{repository} in the \texttt{benchmark.py} and \texttt{test.py} files respectively
+
+% K_{500} x=k
+\begin{figure}[h]
+     \centering
+     \begin{tikzpicture}
+     	\begin{axis}[
+	     	xmin=0,ymin=0,
+	     	xlabel=$k$,ylabel={Time(s)},
+	     	legend pos=north west,
+	     	width=0.9\textwidth,
+	     	height=0.5\textwidth
+     	]
+			\addplot[mark=none,color=green] table [x=x, y=min, col sep=comma] {res/complete500.csv};
+			\addlegendentry{Minimum};
+			\addplot[mark=none,color=blue] table [x=x, y=mean, col sep=comma] {res/complete500.csv};
+			\addlegendentry{Mean};
+			\addplot[mark=none,color=red] table [x=x, y=max, col sep=comma] {res/complete500.csv};
+			\addlegendentry{Maximum};
+		\end{axis}
+     \end{tikzpicture}
+     \caption{Times for \texttt{NeighbourhoodSearch}($K_{500},k$) using 25 repetitions}
+\end{figure}
+
+% C_n k=2
+\begin{figure}[h]
+     \centering
+     \begin{tikzpicture}
+     	\begin{axis}[
+	     	xmin=0,ymin=0,
+	     	xlabel=$n$,ylabel={Time(s)},
+	     	legend pos=north west,
+	     	width=0.9\textwidth,
+	     	height=0.5\textwidth
+     	]
+			\addplot[mark=none,color=green] table [x=x, y=min, col sep=comma] {res/cycle.csv};
+			\addlegendentry{Minimum};
+			\addplot[mark=none,color=blue] table [x=x, y=mean, col sep=comma] {res/cycle.csv};
+			\addlegendentry{Mean};
+			\addplot[mark=none,color=red] table [x=x, y=max, col sep=comma] {res/cycle.csv};
+			\addlegendentry{Maximum};
+		\end{axis}
+     \end{tikzpicture}
+     \caption{Times for \texttt{NeighbourhoodSearch}($C_{n},2$) using 25 repetitions. Here I start at $C_3$}
+\end{figure}
+
+% L_n k=2
+\begin{figure}[h]
+     \centering
+     \begin{tikzpicture}
+     	\begin{axis}[
+	     	xmin=0,ymin=0,
+	     	xlabel=$n$,ylabel={Time(s)},
+	     	legend pos=north west,
+	     	width=0.9\textwidth,
+	     	height=0.5\textwidth
+     	]
+			\addplot[mark=none,color=green] table [x=x, y=min, col sep=comma] {res/linear.csv};
+			\addlegendentry{Minimum};
+			\addplot[mark=none,color=blue] table [x=x, y=mean, col sep=comma] {res/linear.csv};
+			\addlegendentry{Mean};
+			\addplot[mark=none,color=red] table [x=x, y=max, col sep=comma] {res/linear.csv};
+			\addlegendentry{Maximum};
+		\end{axis}
+     \end{tikzpicture}
+     \caption{Times for \texttt{NeighbourhoodSearch}($L_{n},2$) using 25 repetitions. Here I start at $L_3$}
+\end{figure}
+
+% K_{n,m} k=2
+\begin{figure}[h]
+     \centering
+     \begin{tikzpicture}
+     	\begin{axis}[
+	     	xmin=0,ymin=0,zmin=0,
+	     	xlabel=$n$,zlabel={Time(s)},ylabel=$m$,
+	     	legend pos=north west,
+	     	width=0.9\textwidth,
+	     	height=0.5\textwidth
+     	]
+			\addplot3[mark=none,color=green] table [x=x, y=y, z=min, col sep=comma] {res/bipartite.csv};
+			\addlegendentry{Minimum};
+			\addplot3[mark=none,color=blue] table [x=x, y=y, z=mean, col sep=comma] {res/bipartite.csv};
+			\addlegendentry{Mean};
+			\addplot3[mark=none,color=red] table [x=x, y=y, z=max, col sep=comma] {res/bipartite.csv};
+			\addlegendentry{Maximum};
+		\end{axis}
+     \end{tikzpicture}
+     \caption{Times for \texttt{NeighbourhoodSearch}($K_{n,m},2$) using 25 repetitions. Here I start at $K_{2,2}$}
+\end{figure}
+
+% K_n 2<k<n+1
+\begin{figure}[h]
+     \centering
+     \begin{tikzpicture}
+     	\begin{axis}[
+	     	xmin=0,ymin=0,zmin=0,
+	     	xlabel=$n$,zlabel={Time(s)},ylabel=$k$,
+	     	legend pos=north west,
+	     	width=0.9\textwidth,
+	     	height=0.5\textwidth
+     	]
+			\addplot3[mark=none,color=green] table [x=x, y=y, z=min, col sep=comma] {res/complete.csv};
+			\addlegendentry{Minimum};
+			\addplot3[mark=none,color=blue] table [x=x, y=y, z=mean, col sep=comma] {res/complete.csv};
+			\addlegendentry{Mean};
+			\addplot3[mark=none,color=red] table [x=x, y=y, z=max, col sep=comma] {res/complete.csv};
+			\addlegendentry{Maximum};
+		\end{axis}
+     \end{tikzpicture}
+     \caption{Times for \texttt{NeighbourhoodSearch}($K_n,k$) using 25 repetitions. Here I start at $K_{2,2}$ and constrain $k$ to $2<k\leq n$.}
+\end{figure}
