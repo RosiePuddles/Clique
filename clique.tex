@@ -102,6 +102,9 @@ There are probably a few optimisations we can make upon \cref{alg:main} and \cre
 
 It may also be useful to calculate $\Delta(G)$ to make sure that a clique of size $k$ can theoretically exist in the given graph since $\omega(G)\leq\Delta(G)$. This optimisation would not change the time complexity of the algorithm, but would alter the lower bound to $\Omega(n)$ for $k>\Delta(G)$ giving time to calculate $\Delta(G)$.
 
+\subsection{Adaptation to solve similar problems}
+Due to the nature of the algorithm, it's trivial to alter it to solve similar clique based problems such as finding the clique number and finding all cliques of given size.
+
 \section{Correctness}
 
 Let $n_1$ be a node in $V$. If we consider the possible cliques $n$ is contained within, by definition all of these cliques must contain nodes within $A(n_1)$ otherwise $n$ would not be adjacent to all nodes in the subgraph, and thus the subgraph would not be a clique. By then taking $n_2\in A(n_1)$, any clique that $n_2$ is contained within must contain nodes within $A(n_2)$ for the same reasons. Therefore, any clique that contains both $n$ and $n_2$ can only contain nodes within $A(n_1)$ and $A(n_1)$ or $A(n_1)\cap A(n_2)$.
